@@ -27,7 +27,7 @@
             </div>
             <div class="col-lg-6 col-sm-12 ">
               <h6 class="footer-title mb-4 mb-lg-6 text-center">Visitanos en:</h6>
-              <a href="javascript:void(0);" class="d-block footer-link mb-4 w-100 d-flex flex-wrap justify-content-center flex-md-row flex-column "
+              <a href="https://mawii.com.co" class="d-block footer-link mb-4 w-100 d-flex flex-wrap justify-content-center flex-md-row flex-column "
                 ><img src="<?= base_url(['assets/img/companies/mawii.webp']) ?>" style="height:100px" alt="apple icon"
               /></a>
             </div>

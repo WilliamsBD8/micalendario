@@ -209,7 +209,7 @@
                     <i class="ri-close-line"></i>
                   </span>
                 </span>
-                <span class="switch-label"><a href="">Acepto T&C</a></span>
+                <span class="switch-label"><a href="https://mawii.com.co/tyc">Acepto T&C</a></span>
               </label>
             </div>
           <?php endif ?>

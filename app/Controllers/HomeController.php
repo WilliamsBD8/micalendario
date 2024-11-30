@@ -241,27 +241,44 @@ class HomeController extends BaseController
 	}
 
 	public function send_emails(){
-		$date = date('Y-m-d');
+		$threeDaysAhead = date('Y-m-d', strtotime('+3 days'));
+		$today = date('Y-m-d');
 		$dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado'];
 
-		// if (date('d') == '29') {
-			$c_model = new Company();
-			$companies = $c_model
-				->select([
-					'companies.*',
-					'users.name as user_name',
-					'users.email as user_email',
-				])
-				->join('users', 'users.id = companies.user_id', 'left')
-				->where(['first_working_day' => true])
-				->findAll();
-			foreach ($companies as $key => $company) {
-				$last_digit_nit = substr($company->nit, -1);
-				$tc_model = new TaxCalendar();
+		$c_model = new Company();
+		$companies = $c_model
+			->select([
+				'companies.*',
+				'users.name as user_name',
+				'users.email as user_email',
+			])
+			->join('users', 'users.id = companies.user_id', 'left')
+			->where(['first_working_day' => true])
+			->orWhere(['three_days_due' => true])
+			->orWhere(['due_date' => true])
+			->findAll();
+		foreach ($companies as $key => $company) {
+			$last_digit_nit = substr($company->nit, -1);
+			$tc_model = new TaxCalendar();
+			$taxes = [];
+			if(date('d') == '01' && $company->first_working_day){
 				$taxes = $tc_model
 					->where(['last_digit_nit' => $last_digit_nit, 'YEAR(date)' => date('Y'), 'MONTH(date)' => date('m')])
 					->join('calendary_taxes', 'calendary_taxes.id = upload_tax_calendar.calendary_tax_id', 'left')
 				->findAll();
+			}else{
+				$datesToCheck = [];
+				if ($company->three_days_due) $datesToCheck[] = $threeDaysAhead;
+				if ($company->due_date) $datesToCheck[] = $today;
+
+				if (!empty($datesToCheck)) 
+					$taxes = $tc_model
+						->where(['last_digit_nit' => $last_digit_nit])
+						->whereIn('date', $datesToCheck)
+						->join('calendary_taxes', 'calendary_taxes.id = upload_tax_calendar.calendary_tax_id', 'left')
+						->findAll();
+			}
+			if(!empty($taxes)){
 				$taxes = array_reduce($taxes, function ($result, $item) {
 					$result[$item->date][] = $item;
 					return $result;
@@ -275,34 +292,26 @@ class HomeController extends BaseController
 					'dias'		=> $dias
 				]);
 
-				// $vista = view('emails/welcome', [
-				// 	'company'	=> $company,
-				// ]);
-
-				// Mostrar el resultado
-				// echo $vista; exit;
-				// return view('emails/notification', [
-				// 	'taxes'		=> $taxes,
-				// 	'company'	=> $company,
-				// 	'date'		=> $date,
-				// 	'dias'		=> $dias
-				// ]);
+				$emails_com = array_filter(array_map('trim', explode(" ", $company->emails)));
+				$emails_com[] = $company->user_email;
+				$emails_com = array_unique($emails_com);
+				$emails = implode(", ", $emails);
 
 				$email = new EmailController();
-				$response = $email->send('wabox324@gmail.com', 'wabox', $company->emails, 'Notificación pago de impuesots', $vista);
-				if($response->status){
-					var_dump([$taxes]);
-				}else{
+				$response = $email->send('wabox324@gmail.com', 'wabox', $emails, 'Notificación pago de impuesots', $vista);
+				if(!$response->status){
+					log_message('error', 'Error al enviar notificación para la empresa ID: ' . $company->id . '. Mensaje: ' . $response->message);
 					return $this->respond([
 						'status'    => '403',
 						'title'     => 'Error al enviar la notificacion',
 						'message'   => $response->message
-					]);
+					], 500);
 				}
 			}
-			// return $this->respond($companies);
-		// }
-		die;
+		}
+		return $this->respond([
+			'title'     => 'Notificaciones enviadas'
+		]);
 	}
 
 	protected function getTax(){
