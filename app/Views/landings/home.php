@@ -30,7 +30,7 @@
                                     <h6 class="mt-5">Consulta el calendario de tu empresa</h6>
                                     <form action="<?= base_url() ?>" method="POST" onsubmit="validateForm(event)"> <!-- onSubmit="findNit(event)" -->
                                         <div class="input-group">
-                                            <input type="text" onkeyup="formatNumeric(this, 10)" value="<?= session('filter')->nit->number ?>" class="form-control" placeholder="Nit" aria-label="Nit" name="nit" id="nit" aria-describedby="button-addon2">
+                                            <input type="text" onkeyup="formatNumeric(this, 10)" onblur="$('#btn-send-filter').click()" value="<?= session('filter')->nit->number ?>" class="form-control" placeholder="Nit" aria-label="Nit" name="nit" id="nit" aria-describedby="button-addon2">
                                         </div>
                                         <br>
                                         <!-- <hr> -->
