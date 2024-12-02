@@ -132,7 +132,7 @@
                                                                 <div class="col-lg-8 col-sm-12 order-2 order-md-1">
                                                                     <div class="card-body">
                                                                         <h4 class="text-center text-primary fw-semibold"><?= session()->get('user-calendar') ? "Hola ".session('user-calendar')->name : "" ?> Bienvenido a <span class="fw-bold">Micalendario Tributario</span></h4>
-                                                                        <h5 class="card-title mb-4"><?= isset(configInfo()['description']) ? configInfo()['description'] : 'Donde encontrará el calendario de todos los impuestos de Colombia.' ?></h5>
+                                                                        <h5 class="card-title mb-4"><?= isset(configInfo()['intro']) ? configInfo()['intro'] : 'Donde encontrará el calendario de todos los impuestos de Colombia.' ?></h5>
                                                                         <?php if(session('filter')->nit->number != ''): ?>
                                                                             <h5 class="card-title">Este es el calendario tributario para el <span class="fw-bold">NIT <?= session('filter')->nit->number ?></span></h5>
                                                                         <?php endif ?>

@@ -10,7 +10,7 @@
               <a href="<?= base_url() ?>" class="app-brand-link mb-6">
                 <span class="app-brand-text demo footer-link fw-semibold ms-1"><?= isset(configInfo()['name_app']) ? configInfo()['name_app'] : 'IPLANET' ?></span>
               </a>
-              <?php if(isset(configInfo()['description'])): ?>
+              <?php if(isset(configInfo()['description_app'])): ?>
                 <p class="footer-text footer-logo-description mb-6">
                   <?=  configInfo()['description_app'] ?>
                 </p>
