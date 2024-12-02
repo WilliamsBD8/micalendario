@@ -288,14 +288,14 @@ class HomeController extends BaseController
 				$vista = view('emails/notification', [
 					'taxes'		=> $taxes,
 					'company'	=> $company,
-					'date'		=> $date,
+					'date'		=> $today,
 					'dias'		=> $dias
 				]);
 
 				$emails_com = array_filter(array_map('trim', explode(" ", $company->emails)));
 				$emails_com[] = $company->user_email;
 				$emails_com = array_unique($emails_com);
-				$emails = implode(", ", $emails);
+				$emails = implode(", ", $emails_com);
 
 				$email = new EmailController();
 				$response = $email->send('wabox324@gmail.com', 'wabox', $emails, 'Notificación pago de impuesots', $vista);

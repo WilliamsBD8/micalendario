@@ -71,7 +71,7 @@ class ConfigController extends BaseController
                 $subtitle = 'Listado de configuraciones.';
                 $config = new Configuration();
                 $data = $config->findAll();
-                $this->crud->setTexteditor(['footer', 'intro']);
+                $this->crud->setTexteditor(['description_app', 'footer', 'intro']);
                 $this->crud->setFieldUpload('background_image', 'assets/img', base_url().'/assets/img');
                 $this->crud->setFieldUpload('favicon', 'assets/img', base_url().'/assets/img');
                 $this->crud->setFieldUpload('background_img_vertical', 'assets/img', base_url().'/assets/img');

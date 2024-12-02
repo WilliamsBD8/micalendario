@@ -12,7 +12,7 @@
               </a>
               <?php if(isset(configInfo()['description'])): ?>
                 <p class="footer-text footer-logo-description mb-6">
-                  <?=  configInfo()['description'] ?>
+                  <?=  configInfo()['description_app'] ?>
                 </p>
               <?php endif ?>
               <!-- <form>
