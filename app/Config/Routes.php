@@ -38,6 +38,7 @@ $routes->post('/events', 'HomeController::events');
 
 $routes->post('/register/home', 'HomeController::register');
 $routes->post('/login/home', 'HomeController::login');
+$routes->get('/desuscribe/(:segment)', 'HomeController::desuscribe/$1');
 
 $routes->get('/chat', 'PruebaController::chat');
 $routes->get('/datatable/(:segment)', 'PruebaController::datatable/$1');

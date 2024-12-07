@@ -96,16 +96,7 @@
             id="register-name"
             name="register-name"
             placeholder="" />
-            <label for="register-name">Nombre del dueño</label>
-        </div>
-        <div class="form-floating form-floating-outline mb-5">
-            <input
-            type="text"
-            class="form-control"
-            id="register-name-company"
-            name="register-name-company"
-            placeholder="" />
-            <label for="register-name-company">Nombre de la empresa</label>
+            <label for="register-name">Nombre</label>
         </div>
         <div class="form-floating form-floating-outline mb-5">
             <input
@@ -242,6 +233,7 @@
             class="form-control"
             id="nit-notify"
             name="nit-notify"
+            disabled
             onkeyup="formatNumeric(this, 10)"
             value=""
             placeholder="" />
@@ -277,7 +269,7 @@
                 <span class="switch-on"></span>
                 <span class="switch-off"></span>
             </span>
-            <span class="switch-label">Dias del vencimiento</span>
+            <span class="switch-label">Día del vencimiento</span>
             </label>
         </div>
 

@@ -326,6 +326,7 @@
                 data-bs-toggle="offcanvas"
                 data-bs-target="#canvasRegister"
                 aria-controls="canvasRegister"
+                id="btn-menu-register"
                 class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
                 ><span class="tf-icons ri-user-add-line me-md-1"></span
                 ><span class="d-none d-md-block">Registrarme</span></a>

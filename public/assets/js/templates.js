@@ -21,7 +21,7 @@ function template_1(taxes){
                             <tr>
                                 <th class="table-primary">Último dígito del NIT</th>
         `;
-        tax.details.map(d => template += `<th class="table-primary text-center">${d.last_digit_nit}</th>`);
+        tax.details.map(d => template += `<th class="table-primary text-center">${d.last_digit_nit}</th>`); 
         template += `
                             </tr>
                         </thead>
@@ -43,7 +43,9 @@ function template_1(taxes){
 }
 
 function template_2(tax){
-    const last_digit_nit = Object.entries(tax.last_digit_nit).length;
+    let entries = Object.entries(tax.last_digit_nit);
+    entries.push(entries.shift());
+    const last_digit_nit = entries.length;
     var template = `
         <div class="pb-5 w-100">
             <div class="table-responsive text-nowrap">
@@ -56,7 +58,7 @@ function template_2(tax){
                         </tr>
                         <tr>
                             <th class="table-primary">Último dígito del NIT</th>`;
-                            Object.entries(tax.last_digit_nit).forEach(([i, d]) => template += `<th class="table-primary">${d}</th>`);
+                            entries.map(d => template += `<th class="table-primary text-center">${d[0]}</th>`); 
             template += `</tr>
                     </thead>
                     <tbody class="table-border-bottom-0">`;
@@ -66,8 +68,7 @@ function template_2(tax){
                                 <td class="table-primary">${t.title}</td>
                                 <td class="table-white"></td>
                                 <td class="table-secondary">Hasta ${getMeses(t.month)}</td>`;
-                                Object.entries(tax.last_digit_nit).forEach(([i, dig]) => {
-                                    let d = t.details.find(dd => dd.last_digit_nit == dig)
+                                t.details.map(d => {
                                     let [year, month, day] = d.date.split("-").map(String)
                                     template += `<td class="${filter.last_dig == d.last_digit_nit ? 'table-info' : 'table-white'} ${filter.last_dig} ${d.last_digit_nit}">${day}</td>`;
                                 });

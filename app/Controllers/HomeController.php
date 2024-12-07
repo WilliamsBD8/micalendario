@@ -110,7 +110,7 @@ class HomeController extends BaseController
 
 				$c_model->save([
 					'user_id'	=> $user_id,
-					'name'		=> $data->register_name_company,
+					'name'		=> $data->register_name,
 					'nit'		=> $data->register_nit
 				]);
 				
@@ -123,11 +123,14 @@ class HomeController extends BaseController
 				$data->company = $user->getCompany($data->id);
 				$session = session();
 				$session->set('user-calendar', $data);
-				$vista = view('emails/welcome', [
+				$vista = view('emails/noty_wel', [
+					'type'	=> true,
 					'user'	=> (object) $data_user,
 				]);
+				$subject = 'Bienvenido a ';
+				$subject .= isset(configInfo()['name_app']) ? configInfo()['name_app'] : 'IPLANET';
 				$email = new EmailController();
-				$response = $email->send('wabox324@gmail.com', 'wabox', $data->email, 'Bienvenido a '.isset(configInfo()['name_app']) ? configInfo()['name_app'] : 'IPLANET', $vista);
+				$response = $email->send('wabox324@gmail.com', 'wabox', $data->email, $subject, $vista);
 			}
 
 			return $this->respond([
@@ -135,8 +138,26 @@ class HomeController extends BaseController
 				'msg'		=> "Usuario y empresa creado con exito."
 			]);
 		} catch (\Exception $e) {
-            return $this->respond(['msg' => "Error en el servidor", "error" => $e->getMessage()], 500);
+            return $this->respond(['msg' => "Error en el servidor", "error" => $e->getMessage(), 'err' => $e], 500);
         }
+	}
+
+	public function desuscribe($id){
+		$u_model = new User();
+		$user = $u_model->find($id);
+		if(!empty($user)){
+			$c_model = new Company();
+			$c_model->where(['user_id' => $user->id ])->delete();
+			$p_model = new Password();
+			$p_model->where(['user_id' => $user->id ])->delete();
+			$u_model = new User();
+			$u_model->where(['id' => $user->id ])->delete();
+		}
+
+		session()->remove('user-calendar');
+		session()->remove('filter');
+
+		return redirect()->to(base_url())->with('success', 'Te has desuscrito exitosamente. Si cambias de opinión, puedes volver a suscribirte');
 	}
 
 	public function login(){
@@ -233,10 +254,11 @@ class HomeController extends BaseController
 				$company = $c_model->find($data->company);
 				session('user-calendar')->company = $company;
 				return $this->respond([
-					'title'	=> 'Campos actualizados',
-					'msg'	=> 'Los campos se actualizaron con exito.',
-					'data'	=> $data_save,
-					'date_p'	=> $data
+					'title'			=> 'Campos actualizados',
+					'msg'			=> 'Los campos se actualizaron con exito.',
+					'data'			=> $data_save,
+					'date_p'		=> $data,
+					'user_calendar'	=> session('user-calendar')
 				],);
 			}else{
 				// new Exc
@@ -276,7 +298,6 @@ class HomeController extends BaseController
 				$datesToCheck = [];
 				if ($company->three_days_due) $datesToCheck[] = $threeDaysAhead;
 				if ($company->due_date) $datesToCheck[] = $today;
-
 				if (!empty($datesToCheck)) 
 					$taxes = $tc_model
 						->where(['last_digit_nit' => $last_digit_nit])
@@ -291,7 +312,8 @@ class HomeController extends BaseController
 				}, []);
 				ksort($taxes);
 				
-				$vista = view('emails/notification', [
+				$vista = view('emails/noty_wel', [
+					'type'		=> false,
 					'taxes'		=> $taxes,
 					'company'	=> $company,
 					'date'		=> $today,
@@ -303,10 +325,10 @@ class HomeController extends BaseController
 				$emails_com = array_unique($emails_com);
 				$emails = implode(", ", $emails_com);
 
-				return $vista;
+				// return $vista;
 
 				$email = new EmailController();
-				$response = $email->send('wabox324@gmail.com', 'wabox', $emails, 'Notificación pago de impuestos', $vista);
+				$response = $email->send('wabox324@gmail.com', 'wabox', $emails, 'Notificación pago de impuestos.', $vista);
 				if(!$response->status){
 					log_message('error', 'Error al enviar notificación para la empresa ID: ' . $company->id . '. Mensaje: ' . $response->message);
 					return $this->respond([
@@ -328,7 +350,8 @@ class HomeController extends BaseController
 		foreach ($category_taxes as $key => $category) {
 			$category->calendaries = $ct_t_model->getCalendary($category->id);
 			$category->calendaries = array_values(array_filter($category->calendaries, function ($calendary) use ($ct_t_model) {
-				$datos = $ct_t_model->getCalendaryTax($calendary->id);
+				$calendary->description .= " - {$calendary->ubication}";
+				$datos = $ct_t_model->getCalendaryTax($calendary->id, $calendary->municipality);
 				$calendary->taxes = $datos;
 				return !empty($calendary->taxes);
 			}));
@@ -336,17 +359,11 @@ class HomeController extends BaseController
 				switch ($calendary->template) {
 					case '1':
 						$calendary->last_digit_nit = array_reduce($calendary->taxes, function ($result, $item) {
-							$key = $item->last_digit_nit;
-							$result[$key] = $key;
+							$result[$item->last_digit_nit] = $item->last_digit_nit;
 							return $result;
 						}, []);
-	
 						$calendary->taxes = array_reduce($calendary->taxes, function ($result, $item) {
-							if($item->calendary_tax_id != 28){
-								$key = $item->detail_period;
-							}else{
-								$key = $item->detail_period." (".$item->ubication.")";
-							}
+							$key = $item->detail_period;
 							if (!isset($result[$key])) {
 								$result[$key] = (object)[
 									'title' => $key,

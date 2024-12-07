@@ -2,25 +2,25 @@ $(() => {
   const $offcanvas = $('.offcanvas');
   $offcanvas.on('show.bs.offcanvas', function () {
     $('.btn-floating').click();
+    if(!isEmptyJson(user_calendar)){
+      console.log(user_calendar);
+      $("#company-id").val(user_calendar.company.id);
+      $("#name-company").val(user_calendar.company.name);
+      $("#email-notify").val(user_calendar.email);
+      const emails = user_calendar.company.emails != null && user_calendar.company.emails != "" ? user_calendar.company.emails.split(" ") : [];
+      $("#email-notify-2").val(emails[0]);
+      $("#email-notify-3").val(emails.length == 2 ? emails[1] : "");
+      $("#nit-notify").val(user_calendar.company.nit);
+      $("#first_working_day").prop("checked", Boolean(parseInt(user_calendar.company.first_working_day)))
+      $("#three_days_due").prop("checked", Boolean(parseInt(user_calendar.company.three_days_due)))
+      $("#due_date").prop("checked", Boolean(parseInt(user_calendar.company.due_date)))
+    }
   });
   $offcanvas.on('hide.bs.offcanvas', function () {
     $('.btn-floating').click();
   });
   load_view_general();
 
-  if(!isEmptyJson(user_calendar)){
-    console.log(user_calendar);
-    $("#company-id").val(user_calendar.company.id);
-    $("#name-company").val(user_calendar.company.name);
-    $("#email-notify").val(user_calendar.email);
-    const emails = user_calendar.company.emails != null && user_calendar.company.emails != "" ? user_calendar.company.emails.split(" ") : [];
-    $("#email-notify-2").val(emails[0]);
-    $("#email-notify-3").val(emails.length == 2 ? emails[1] : "");
-    $("#nit-notify").val(user_calendar.company.nit);
-    $("#first_working_day").prop("checked", Boolean(parseInt(user_calendar.company.first_working_day)))
-    $("#three_days_due").prop("checked", Boolean(parseInt(user_calendar.company.three_days_due)))
-    $("#due_date").prop("checked", Boolean(parseInt(user_calendar.company.due_date)))
-  }
 
 });
 
@@ -45,11 +45,7 @@ async function notify(e){
     if ($(`#${d.id}`).val().trim() === "") {
       alert("", `El campo <b>${d.name}</b> es obligatorio.`, 'warning');
       return false
-    }else if(d.id == "nit-notify"){
-      if($(`#${d.id}`).val().length != 9){
-        alert('', 'Número de NIT no válido.', 'warning')
-      }
-    }
+    }else
     return true
   })
 
@@ -73,11 +69,9 @@ async function notify(e){
   let url = base_url(['updated/company']);
 
   const res = await proceso_fetch(url, data);
-  alert(res.title, res.msg, 'success');
+  alert(res.title, res.msg, 'success', 2000);
   $('#btn-cancel-notify').click();
-  console.log(res);
-  $('#email-notify-2').val(res.date_p.email_2)
-  $('#email-notify-3').val(res.date_p.email_3)
+  Object.assign(user_calendar, res.user_calendar);
 }
 
 async function register(e){

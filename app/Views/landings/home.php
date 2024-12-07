@@ -406,6 +406,26 @@
     <!-- Page JS -->
     <!-- <script src="<?= base_url(['assets/js/app-email.js']) ?>"></script> -->
 
+    <?php if (session('success')): ?>
+        <script>
+            $(() => {
+                Swal.fire({
+                    title: "<?= session('success') ?>",
+                    icon: "success",
+                    confirmButtonText: "Registrarme",
+                    customClass: {
+                        confirmButton: 'swal2-confirm btn btn-primary'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#canvasRegister').offcanvas('show')
+                    }
+                });
+            })
+        </script>
+    <?php endif; ?>
+
+
     <script>
         const filter = <?= json_encode(session('filter')) ?>;
         const dates = <?= json_encode($dates) ?>;
