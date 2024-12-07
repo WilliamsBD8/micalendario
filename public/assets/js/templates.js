@@ -66,9 +66,10 @@ function template_2(tax){
                                 <td class="table-primary">${t.title}</td>
                                 <td class="table-white"></td>
                                 <td class="table-secondary">Hasta ${getMeses(t.month)}</td>`;
-                                t.details.map(d => {
+                                Object.entries(tax.last_digit_nit).forEach(([i, dig]) => {
+                                    let d = t.details.find(dd => dd.last_digit_nit == dig)
                                     let [year, month, day] = d.date.split("-").map(String)
-                                    template += `<td class="${filter.last_dig == d.last_digit_nit ? 'table-info' : 'table-white'}">${day}</td>`;
+                                    template += `<td class="${filter.last_dig == d.last_digit_nit ? 'table-info' : 'table-white'} ${filter.last_dig} ${d.last_digit_nit}">${day}</td>`;
                                 });
                 template += `</tr>`
                     });
