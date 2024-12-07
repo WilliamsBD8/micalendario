@@ -1,9 +1,9 @@
-async function proceso_fetch(url, data, method = 'POST') {
+async function proceso_fetch(url, data, time = 2000, method = 'POST') {
     const isEmpty = (obj) => {
         return Object.keys(obj).length === 0;
     };
     const valid = isEmpty(data);
-    if(!valid){
+    if(!valid && time > 0){
         Swal.fire({
             showConfirmButton: false,
             allowOutsideClick: false,
@@ -31,7 +31,7 @@ async function proceso_fetch(url, data, method = 'POST') {
             setTimeout(() => {
                 Swal.close();
                 resolve(responseData);
-            }, !valid ? 2000 : 0);
+            }, !valid ? time : 0);
         });
     }).catch(error => {
         console.log(error.message);
@@ -42,7 +42,7 @@ async function proceso_fetch(url, data, method = 'POST') {
                 Swal.close();
                 alert(error_parse.title, error_parse.msg, 'error');
                 reject(error_parse);
-            }, !valid ? 2000 : 0);
+            }, !valid ? time : 0);
         });
     });
 }
@@ -77,7 +77,7 @@ function createEvent(id, title, date, allDay = false, calendar = '', color ="red
     };
 }
 
-function alert(title = 'Alert', msg = 'Alert', icon = 'success'){
+function alert(title = 'Alert', msg = 'Alert', icon = 'success', time=0){
     var shortCutFunction = icon,
         prePositionClass = 'toast-top-right';
   
@@ -90,8 +90,8 @@ function alert(title = 'Alert', msg = 'Alert', icon = 'success'){
         newestOnTop: true,
         progressBar: false,
         preventDuplicates: true,
-        timeOut: 0,             // Duración en milisegundos (0 significa que no se cierra automáticamente)
-        extendedTimeOut: 0,
+        timeOut: time,             // Duración en milisegundos (0 significa que no se cierra automáticamente)
+        extendedTimeOut: time,
         onclick: null,
         tapToDismiss: true,
     };
@@ -109,3 +109,10 @@ function formatNumeric(input, max = false){
     }
     input.value = value;
 }
+
+function isEmptyJson(data) {
+    return typeof data === "object" && 
+           data !== null && 
+           !Array.isArray(data) && 
+           Object.keys(data).length === 0;
+  }

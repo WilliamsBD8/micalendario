@@ -254,3 +254,7 @@
   animation: slideIn 0.25s ease-out forwards;
   -webkit-animation: slideIn 0.25s ease-out forwards;
 }
+
+.pr-0{
+  padding-right: 0px !important;
+}

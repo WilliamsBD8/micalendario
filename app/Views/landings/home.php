@@ -26,51 +26,57 @@
 
 
                             <div class="col app-email-sidebar border-end flex-grow-0" id="app-email-sidebar">
-                                <div class="btn-compost-wrapper d-grid py-0 pt-4">
-                                    <h6 class="mt-5">Consulta el calendario de tu empresa</h6>
-                                    <form action="<?= base_url() ?>" method="POST" onsubmit="validateForm(event)"> <!-- onSubmit="findNit(event)" -->
+                                <div class="btn-compost-wrapper d-grid p-0 px-2">
+                                    <h6 class="mt-2">Consulta el calendario de tu empresa</h6>
+                                    <form action="<?= base_url() ?>" method="POST" onsubmit="findNit(event)"> <!-- onSubmit="findNit(event)" -->
                                         <div class="input-group">
-                                            <input type="text" onkeyup="formatNumeric(this, 10)" onblur="$('#btn-send-filter').click()" value="<?= session('filter')->nit->number ?>" class="form-control" placeholder="Nit" aria-label="Nit" name="nit" id="nit" aria-describedby="button-addon2">
+                                            <input type="text" onkeyup="formatNumeric(this, 10)" onblur="$('#btn-send-filter').click()" value="<?= session('filter')->nit ?>" class="form-control" placeholder="Nit" aria-label="Nit" name="nit" id="nit" aria-describedby="button-addon2">
                                         </div>
                                         <br>
                                         <!-- <hr> -->
-                                        <div class="form-floating form-floating-outline">
-                                            <select id="anio-tax" class="select2 form-select form-select-lg" name="anio" onchange="$('#btn-send-filter').click()">
-                                                <?php foreach ($dates as $key => $date): ?>
-                                                    <option <?= isset(session('filter')->anio) ? (session('filter')->anio == $date->anio ? 'selected' : '') : '' ?> value="<?= $date->anio ?>"><?= $date->anio ?></option>
-                                                <?php endforeach ?>
-                                            </select>
-                                            <label for="anio-tax">Año</label>
+                                        <div class="row">
+                                            <div class="col-lg-5 pr-0">
+                                                <div class="form-floating form-floating-outline">
+                                                    <select id="anio-tax" class="select2 form-select form-select-lg" name="anio" onchange="$('#btn-send-filter').click()">
+                                                        <?php foreach ($dates as $key => $date): ?>
+                                                            <option <?= isset(session('filter')->anio) ? (session('filter')->anio == $date->anio ? 'selected' : '') : '' ?> value="<?= $date->anio ?>"><?= $date->anio ?></option>
+                                                        <?php endforeach ?>
+                                                    </select>
+                                                    <label for="anio-tax">Año</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-7">
+                                                <div class="form-floating form-floating-outline" id="div-select-mounth">
+                                                    <select
+                                                        id="mes-tax"
+                                                        class="select2 form-select form-select-lg"
+                                                        data-allow-clear="true" data-default="Seleccionar mes" name="mes" onchange="$('#btn-send-filter').click()">
+                                                        <option value="" selected>Seleccionar mes</option>
+                                                        <?php foreach($dates as $date): ?>
+                                                            <?php if($date->anio == session('filter')->anio): ?>
+                                                                <?php foreach($date->meses as $mes): ?>
+                                                                    <option <?= isset(session('filter')->mes) ? (session('filter')->mes == $mes ? 'selected' : '') : '' ?> value="<?= $mes ?>"><?= meses()[$mes - 1] ?></option>
+                                                                <?php endforeach ?>
+                                                            <?php endif ?>
+                                                        <?php endforeach ?>
+                                                    </select>
+                                                    <label for="mes-tax">Mes</label>
+                                                </div>
+                                            </div>
                                         </div>
                                         <br>
-                                        <div class="form-floating form-floating-outline" id="div-select-mounth">
-                                            <select
-                                                id="mes-tax"
-                                                class="select2 form-select form-select-lg"
-                                                data-allow-clear="true" data-default="Seleccionar mes" name="mes" onchange="$('#btn-send-filter').click()">
-                                                <option value="" selected>Seleccionar mes</option>
-                                                <?php foreach($dates as $date): ?>
-                                                    <?php if($date->anio == session('filter')->anio): ?>
-                                                        <?php foreach($date->meses as $mes): ?>
-                                                            <option <?= isset(session('filter')->mes) ? (session('filter')->mes == $mes ? 'selected' : '') : '' ?> value="<?= $mes ?>"><?= meses()[$mes - 1] ?></option>
-                                                        <?php endforeach ?>
-                                                    <?php endif ?>
-                                                <?php endforeach ?>
-                                            </select>
-                                            <label for="mes-tax">Mes</label>
-                                        </div>
-                                        <div class="d-grid gap-2 col-lg-12 mx-auto mt-4 d-none">
+                                        <div class="d-grid gap-2 col-lg-12 mx-auto d-none">
                                             <button type="submit" class="btn btn-outline-primary waves-effect mx-0" id="btn-send-filter"><i class="tf-icons ri-search-line me-md-0"></i> Buscar</button>
                                         </div>
                                     </form>
                                 </div>
                                 <!-- Email Filters -->
-                                <div class="email-filters pt-4 pb-2">
+                                <div class="email-filters pt-0 pb-2">
                                     <!-- Email Filters: Folder -->
 
                                     <div class="nav-align-left border-top">
                                         <ul class="nav nav-tabs w-100 ul-primary" role="tablist">
-                                            <li class="nav-item d-flex justify-content-between align-items-center mb-1">
+                                            <li class="nav-item d-flex justify-content-between align-items-center mb-1" id="btn-list-category-general">
                                                 <button
                                                 type="button"
                                                 class="nav-link active d-flex flex-wrap align-items-center"
@@ -82,19 +88,13 @@
                                                     <!-- <i class="ri-mail-line ri-20px"></i> -->
                                                     <span class="align-middle ms-2">General</span>
                                                 </button>
-                                                <?php 
-                                                    $count_total = 0;
-                                                    foreach($category_taxes as $key => $tax){
-                                                        $count_total += count($tax->calendary);
-                                                    }
-                                                ?>
-                                                <div class="badge bg-label-primary rounded-pill mx-2"><?= $count_total ?></div>
+                                                <div class="badge bg-label-primary rounded-pill mx-2">0</div>
                                             </li>
                                             <?php foreach($category_taxes as $key => $tax): ?>
-                                                <li class="nav-item d-flex justify-content-between align-items-center mb-1">
+                                                <li class="nav-item d-flex justify-content-between align-items-center mb-1" id="btn-list-category-<?= $tax->id ?>">
                                                     <button
                                                     type="button"
-                                                    class="nav-link d-flex flex-wrap <?= count($tax->calendary) == 0 ? 'disabled' : '' ?> align-items-center"
+                                                    class="nav-link d-flex flex-wrap disabled<?= count($tax->calendaries) == 0 ? '' : '' ?> align-items-center"
                                                     role="tab"
                                                     data-bs-toggle="tab"
                                                     data-bs-target="#tax-<?= $tax->id ?>"
@@ -103,7 +103,7 @@
                                                         <!-- <i class="ri-mail-line ri-20px"></i> -->
                                                         <span class="align-middle ms-2"><?= $tax->name ?></span>
                                                     </button>
-                                                    <div class="badge bg-label-primary rounded-pill mx-2"><?= count($tax->calendary) ?></div>
+                                                    <div class="badge bg-label-primary rounded-pill mx-2">0</div>
                                                 </li>
                                             <?php endforeach ?>
                                             
@@ -133,9 +133,7 @@
                                                                     <div class="card-body">
                                                                         <h4 class="text-center text-primary fw-semibold"><?= session()->get('user-calendar') ? "Hola ".session('user-calendar')->name : "" ?> Bienvenido a <span class="fw-bold">Micalendario Tributario</span></h4>
                                                                         <h5 class="card-title mb-4"><?= isset(configInfo()['intro']) ? configInfo()['intro'] : 'Donde encontrará el calendario de todos los impuestos de Colombia.' ?></h5>
-                                                                        <?php if(session('filter')->nit->number != ''): ?>
-                                                                            <h5 class="card-title">Este es el calendario tributario para el <span class="fw-bold">NIT <?= session('filter')->nit->number ?></span></h5>
-                                                                        <?php endif ?>
+                                                                        <h5 class="card-title title-NIT" style="<?= session('filter')->nit == "" ? "display:none" : "" ?>">Este es el calendario tributario para el <span class="fw-bold" id="nit-text-title">NIT <?= session('filter')->nit ?></span></h5>
                                                                         <!-- <p>Check your new badge in your profile.</p> -->
                                                                         <!-- <a href="javascript:;" class="btn btn-primary waves-effect waves-light">View Profile</a> -->
                                                                     </div>
@@ -162,69 +160,69 @@
                                     <div class="pt-0 w-80">
                                         <div class="tab-content">
                                             <div class="tab-pane fade show active" id="navs-left-home">
-                                                <?php foreach($category_taxes as $key => $tax): ?>
-                                                    <?php foreach($tax->calendary as $calendary): ?>
+                                                <!-- <php foreach($category_taxes as $key => $tax): ?>
+                                                    <php foreach($tax->calendary as $calendary): ?>
                                                         <div class="card mb-5">
                                                             <div class="card-body">
                                                                 <div class="slide-in" id="title-tab">
                                                                     <div class="divider my-0">
                                                                         <div class="divider-text">
                                                                             <div class="text-center container section-sub_title aos-init aos-animate" data-aos="fade-up">
-                                                                                <h2><?= $calendary->name ?></h2>
-                                                                                <p><?= $calendary->description ?></p>
+                                                                                <h2><= $calendary->name ?></h2>
+                                                                                <p><= $calendary->description ?></p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <?php switch ($calendary->template):
+                                                                <php switch ($calendary->template):
                                                                     case '1': ?>
-                                                                        <?= view('landings/templates/template_2', [
+                                                                        <= view('landings/templates/template_2', [
                                                                             'data' => $calendary
                                                                         ]) ?>
-                                                                        <?php break; ?>
+                                                                        <php break; ?>
                                                                     
-                                                                <?php default: ?>
-                                                                        <?= view('landings/templates/template_1', [
+                                                                <php default: ?>
+                                                                        <= view('landings/templates/template_1', [
                                                                             'data' => $calendary
                                                                         ]) ?>
-                                                                        <?php break; ?>
-                                                                <?php endswitch ?>
+                                                                        <php break; ?>
+                                                                <php endswitch ?>
                                                             </div>
                                                         </div>
-                                                    <?php endforeach ?>
-                                                <?php endforeach ?>
+                                                    <php endforeach ?>
+                                                <php endforeach ?> -->
                                             </div>
                                             <?php foreach($category_taxes as $key => $tax): ?>
-                                                <div class="tab-pane fade"id="tax-<?= $tax->id ?>">
-                                                    <?php foreach($tax->calendary as $calendary): ?>
+                                                <div class="tab-pane fade" id="tax-<?= $tax->id ?>">
+                                                    <!-- <php foreach($tax->calendary as $calendary): ?>
                                                         <div class="card mb-5">
                                                             <div class="card-body">
                                                                 <div class="slide-in" id="title-tab">
                                                                     <div class="divider my-0">
                                                                         <div class="divider-text">
                                                                             <div class="text-center container section-sub_title aos-init aos-animate" data-aos="fade-up">
-                                                                                <h2><?= $calendary->name ?></h2>
-                                                                                <p><?= $calendary->description ?></p>
+                                                                                <h2><= $calendary->name ?></h2>
+                                                                                <p><= $calendary->description ?></p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <?php switch ($calendary->template):
+                                                                <php switch ($calendary->template):
                                                                     case '1': ?>
-                                                                        <?= view('landings/templates/template_2', [
+                                                                        <= view('landings/templates/template_2', [
                                                                             'data' => $calendary
                                                                         ]) ?>
-                                                                        <?php break; ?>
+                                                                        <php break; ?>
                                                                     
-                                                                <?php default: ?>
-                                                                        <?= view('landings/templates/template_1', [
+                                                                <php default: ?>
+                                                                        <= view('landings/templates/template_1', [
                                                                             'data' => $calendary
                                                                         ]) ?>
-                                                                        <?php break; ?>
-                                                                <?php endswitch ?>
+                                                                        <php break; ?>
+                                                                <php endswitch ?>
                                                             </div>
                                                         </div>
-                                                    <?php endforeach ?>
+                                                    <php endforeach ?> -->
                                                 </div>
                                             <?php endforeach ?>
                                         </div>
@@ -411,7 +409,10 @@
     <script>
         const filter = <?= json_encode(session('filter')) ?>;
         const dates = <?= json_encode($dates) ?>;
+        const categories = <?= json_encode($category_taxes) ?>;
+        const user_calendar = <?= json_encode(session()->get('user-calendar') ? session('user-calendar') : (object)[]) ?>;
     </script>
     <script src="<?= base_url(['assets/js/forms-selects.js']) ?>"></script>
+    <script src="<?= base_url(['assets/js/templates.js']) ?>"></script>
     <script src="<?= base_url(['assets/js/calendar.js']) ?>"></script>
 <?= $this->endSection() ?>

@@ -1,19 +1,27 @@
 $(() => {
-  const $offcanvasRegister = $('#canvasRegister');
-  $offcanvasRegister.on('show.bs.offcanvas', function () {
+  const $offcanvas = $('.offcanvas');
+  $offcanvas.on('show.bs.offcanvas', function () {
     $('.btn-floating').click();
   });
-  $offcanvasRegister.on('hide.bs.offcanvas', function () {
+  $offcanvas.on('hide.bs.offcanvas', function () {
     $('.btn-floating').click();
   });
+  load_view_general();
 
-  const $offcanvasSettingNotify = $('#canvasNotify');
-  $offcanvasSettingNotify.on('show.bs.offcanvas', function () {
-    $('.btn-floating').click();
-  });
-  $offcanvasSettingNotify.on('hide.bs.offcanvas', function () {
-    $('.btn-floating').click();
-  });
+  if(!isEmptyJson(user_calendar)){
+    console.log(user_calendar);
+    $("#company-id").val(user_calendar.company.id);
+    $("#name-company").val(user_calendar.company.name);
+    $("#email-notify").val(user_calendar.email);
+    const emails = user_calendar.company.emails.split(" ");
+    $("#email-notify-2").val(emails[0]);
+    $("#email-notify-3").val(emails.length == 2 ? emails[1] : "");
+    $("#nit-notify").val(user_calendar.company.nit);
+    $("#first_working_day").prop("checked", Boolean(parseInt(user_calendar.company.first_working_day)))
+    $("#three_days_due").prop("checked", Boolean(parseInt(user_calendar.company.three_days_due)))
+    $("#due_date").prop("checked", Boolean(parseInt(user_calendar.company.due_date)))
+  }
+
 });
 
 function validateForm(e = false){
@@ -74,54 +82,64 @@ async function notify(e){
 
 async function register(e){
   e.preventDefault();
-  let nit = $('#register-nit').val();
-  if(nit == '')
-    return alert('', 'El campo <b>Nit</b> es obligatorio.', 'warning');
-
-  if(nit.length !== 9 && nit.length !== 10){
-    return alert('Campo Obligatorio', 'Número de NIT no válido.', 'warning')
-  }
-
-  let name = $('#register-name').val();
-  if(name == '')
-    return alert('', 'El campo <b>Nombre del dueño</b> es obligatorio.', 'warning')
-
-  let name_company = $('#register-name-company').val();
-  if(name_company == '')
-    return alert('', 'El campo <b>Nombre de la compañia</b> es obligatorio.', 'warning')
-
-  let email = $('#register-email').val();
-  if(email == '')
-    return alert('', 'El campo <b>Email</b> es obligatorio.', 'warning')
-
-  let captcha = $('#captcha').val();
-  if(captcha == '')
-    return alert('', 'El campo <b>captcha</b> es obligatorio.', 'warning')
-
-  let data = {
-    nit, name, name_company, email, captcha
-  }
+  toastr.clear();
+  const form = $(e.target); // Captura el formulario
+  const formData = form.serializeArray().reverse(); // Serializa los datos
+  let isValid = true;
+  let i = 1;
+  formData.forEach((item) => {
+    const input = form.find(`[name="${item.name}"]`);
+    const value = item.value.trim(); // Eliminar espacios en blanco
+    const label = input.siblings('label').text(); // Obtiene el atributo 'for'
+    if (!value) {
+      i += 1;
+      isValid = false;
+      alert('Campo Obligatorio', `El campo <b>${label}</b> es obligatorio.`, 'warning', ((i + 5) * 1000));
+    }else if(item.name == "register-nit" && value.length !== 9 && value.length !== 10){
+      i += 1;
+      isValid = false;
+      alert('Campo Obligatorio', `El campo <b>${label}</b> no es válido.`, 'warning', ((i + 5) * 1000));
+    }
+  });
+  if(!isValid) return
+  const data = formData.reduce((obj, item) => {
+    const key = item.name.replace(/-/g, "_"); // Reemplazar "-" por "_"
+    obj[key] = item.value.trim(); // Asignar el valor al JSON
+    return obj;
+  }, {});
   let url = base_url(['register/home']);
   const res = await proceso_fetch(url, data);
-  // $('#btn-cancel-login-register').click();
   window.location.href = base_url();
   return alert('', 'Usuario y empresa registrado con exito', 'success');
 }
 
 async function login(e){
   e.preventDefault();
-  let email = $('#login-email').val();
-  if(email == '')
-    return alert('Campo Obligatorio', 'El campo email es obligatorio.', 'warning')
-  let password = $('#login-password').val();
-  if(password == '')
-    return alert('Campo Obligatorio', 'El campo contraseña es obligatorio.', 'warning')
-  let captcha = $('#captcha').val();
-  if(captcha == '')
-    return alert('Campo Obligatorio', 'El campo captcha es obligatorio.', 'warning')
-  let data = {
-    email, password, captcha
-  }
+  toastr.clear();
+  const form = $(e.target); // Captura el formulario
+  const formData = form.serializeArray().reverse(); // Serializa los datos
+  let isValid = true;
+
+  formData.forEach((item, i ) => {
+    const input = form.find(`[name="${item.name}"]`);
+    const value = item.value.trim(); // Eliminar espacios en blanco
+    const label = input.siblings('label').text(); // Obtiene el atributo 'for'
+    if (!value) {
+      isValid = !isValid;
+      return alert('Campo Obligatorio', `El campo <b>${label}</b> es obligatorio.`, 'warning', ((i + 5) * 1000));
+    }
+  });
+
+  if(!isValid) return
+
+  const data = formData.reduce((obj, item) => {
+    const key = item.name.replace(/-/g, "_"); // Reemplazar "-" por "_"
+    obj[key] = item.value.trim(); // Asignar el valor al JSON
+    return obj;
+  }, {});
+
+  console.log(data);
+
   let url = base_url(['login/home']);
   const res = await proceso_fetch(url, data);
   window.location.href = base_url();
@@ -129,21 +147,32 @@ async function login(e){
 }
 
 async function findNit(e){
-    e.preventDefault();
-    var nit = $('#nit').val();
-    if(nit != ''){
-        let url = base_url(['findNit']);
-        let data = {nit}
-        const res = await proceso_fetch(url, data);
-        if(!res.status){
-            $('#div_btn_floating').show()
-            setTimeout(() => {
-                clickButton()
-            }, 1000)
-        }else{
-            $('#div_btn_floating').hide()
-        }
+  e.preventDefault();
+  var nit = $('#nit').val();
+  if(nit != ''){
+    if(nit.length !== 9 && nit.length !== 10){
+      return alert('Campo Obligatorio', 'Número de NIT no válido.', 'warning')
     }
+  }
+  let url = base_url();
+  let data = {
+    nit,
+    anio: $('#anio-tax').val(),
+    mes: $('#mes-tax').val()
+  }
+
+  var valid_change = Object.entries(data).some(([i, data_post]) => data_post != filter[i]);
+  if(valid_change){
+    const res = await proceso_fetch(url, data, 500);
+    Object.assign(filter, res.filter);
+    Object.assign(categories, res.data);
+    load_view_general();
+    if(filter.nit != ""){
+      $('.title-NIT').show();
+      $('#nit-text-title').html(`NIT ${filter.nit}`);
+    }else $('.title-NIT').hide();
+    $('#btn-list-category-general button').click();
+  }
 }
 
 function clickButton(){
@@ -196,17 +225,16 @@ function changeYear(year){
 
 function validTC(){
   var check = $('#accept-tc').prop('checked');
-  $('#btn-send-register-login').attr('disabled', !check)
+  $('#btn-send-register').attr('disabled', !check)
 }
 
 $(document).on('click', '.ul-primary .nav-link', function () {
-    const tabText = $(this).text(); // Obtener el texto de la pestaña seleccionada
+    const tabText = $(this).text();
     const meses = [
       "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
       "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ];
-    $('#title-tab').removeClass('slide-in'); // Elimina la animación anterior (si existe)
-    // Vuelve a aplicar la animación después de un pequeño retraso para reiniciarla
+    $('#title-tab').removeClass('slide-in');
     setTimeout(() => {
         $('#title-tab').html(`
             <div class="text-center container section-title aos-init aos-animate" data-aos="fade-up">
@@ -217,3 +245,4 @@ $(document).on('click', '.ul-primary .nav-link', function () {
         $('#title-tab').addClass('slide-in');
     }, 10);
 });
+

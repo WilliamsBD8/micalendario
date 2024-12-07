@@ -52,13 +52,10 @@ class CategoryTax extends Model
         if(!$session) {
             $session = session();
 			$session->set('filter', (object)[
-				"nit" 		=> (object) [
-                    "number"    => "",
-                    "status"    => false
-                ],
 				"anio"		=> date('Y'),
 				"mes"		=> "",
-				"last_dig"	=> ""
+				"nit"	    => "",
+				"last_dig"  => "",
 			]);
         }
         $filter = ['calendary_tax_id'  => $id];

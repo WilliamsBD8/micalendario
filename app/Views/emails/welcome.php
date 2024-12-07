@@ -42,7 +42,7 @@
     <!-- Footer -->
     <div class="footer">
       <p>
-        Este correo se ha enviado a <?= $user->email ?>. Si no solicitaste este registro. Si no solicitaste este registro, por favor <a href="mailto:info@iplanetcolombia.com">contáctanos
+        Este correo se ha enviado a <?= $user->email ?>. Si no solicitaste este registro, por favor <a href="mailto:info@iplanetcolombia.com">contáctanos
       </p>
       <p>&copy; Todos los derechos reservados - IPlanet Colombia SAS</p>
     </div>

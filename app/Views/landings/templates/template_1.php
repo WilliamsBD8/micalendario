@@ -1,28 +1,26 @@
 <?php
-    $data_aux = array_reduce($data->taxes, function ($result, $item) {
-        $key = $item->description;
-        if (!isset($result[$key])) {
-            $result[$key] = (object)[
-                'title' => $key,
-                'year' => (int) date('Y', strtotime($item->date)),
-                'month' => (int) date('m', strtotime($item->date)) - 1,
-                'details' => []
-            ];
-        }
-        $result[$key]->details[] = $item;
-        return $result;
-    }, []);
+    // $data_aux = array_reduce($data->taxes, function ($result, $item) {
+    //     $key = $item->description;
+    //     if (!isset($result[$key])) {
+    //         $result[$key] = (object)[
+    //             'title' => $key,
+    //             'year' => (int) date('Y', strtotime($item->date)),
+    //             'month' => (int) date('m', strtotime($item->date)) - 1,
+    //             'details' => []
+    //         ];
+    //     }
+    //     $result[$key]->details[] = $item;
+    //     return $result;
+    // }, []);
 ?>
 
-<?php foreach($data_aux as $tax): ?>
+<?php foreach($data->taxes as $tax): ?>
     <div class="pb-5 w-100">
         <h5 class="card-header py-1"><?= $tax->title ?></h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-light table-sm table-borderless">
                 <thead>
                     <tr class="">
-                        <!-- <th rowspan="2" class="center-celda table-primary"><b>Periodo</b></th> -->
-                        <!-- <th rowspan="2" class="table-white"></th> -->
                         <th colspan="<?= count($tax->details) + 1 ?>"  class="table-primary text-center">Presentación / Pago</th>
                     </tr>
                     <tr>

@@ -15,15 +15,25 @@
   // Inicializar el popover
   const popover = new bootstrap.Popover(popoverTrigger, {
     content: `
+
+      <div class="btn-group" role="group" aria-label="Basic example">
         <a
           href="javascript:void(0);"
           data-bs-toggle="offcanvas"
           data-bs-target="#canvasRegister"
           aria-controls="canvasRegister"
-          class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4">
-          <span class="tf-icons ri-user-line me-md-1"></span>
-          <span class="d-none d-md-block">${filter.nit.status ? 'Iniciar Sesion' : 'Registro'}</span>
-        </a>
+          class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
+          ><span class="d-none d-md-block">Registrarme</span></a>
+          <a
+            href="javascript:void(0);"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#canvasLogin"
+            aria-controls="canvasLogin"
+            class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
+            >Iniciar Sesión</span></a>
+      </div>
+    <div class="d-flex justify-content-between">
+    </div>
     `,
     title: '¿Quieres que te recordemos tus fechas de vencimiento?',
     placement: 'left',

@@ -26,7 +26,7 @@ class HomeController extends BaseController
 
 		$dates = $this->getDates();
 
-		// return $this->respond(session('filter')->nit->status);
+		// return $this->respond($category_taxes);
     	return  view('landings/home', [
 			'dates'				=> $dates,
 			'category_taxes'	=> $category_taxes
@@ -34,25 +34,31 @@ class HomeController extends BaseController
 	}
 
 	public function findNit(){
-		generateCaptcha();
-		// $data = $this->request->getJson();
-		$data = (object)$this->request->getPost();
-		session('filter')->nit->number = $data->nit;
-		session('filter')->anio = $data->anio;
-		session('filter')->mes = $data->mes;
-		$ultimoDigito = substr(session('filter')->nit->number, -1);
-		session('filter')->last_dig = $ultimoDigito;
-
-		// return $this->respond(session('filter'));
-
-		if(session('filter')->nit->number != ''){
-			$c_model = new Company();
-			$company = $c_model->where(['nit' => session('filter')->nit->number])->first();
-			session('filter')->nit->status = !empty($company);
+		$data = $this->request->getJson();
+		// $data = (object)$this->request->getPost();
+		$ultimoDigito = substr($data->nit, -1);
+		if(session()->get('filter')){
+			session('filter')->nit = $data->nit;
+			session('filter')->anio = $data->anio;
+			session('filter')->mes = $data->mes;
+			session('filter')->last_dig = $ultimoDigito;
+		}else{
+			$session = session();
+			$session->set('filter', (object)[
+				"anio"		=> $data->anio,
+				"mes"		=> $data->mes,
+				"nit"	    => $data->nit,
+				"last_dig"  => $ultimoDigito,
+			]);
 		}
 
-
+		
 		$category_taxes = $this->getTax();
+		
+		return $this->respond([
+			'data'		=> $category_taxes,
+			'filter'	=> session('filter')
+		]);
 
 		$dates = $this->getDates();
 
@@ -65,31 +71,31 @@ class HomeController extends BaseController
 	public function register(){
 		try {
 			$data = $this->request->getJson();
-			$validationCaptcha = ValidateReCaptcha($data->captcha);
+			$validationCaptcha = ValidateReCaptcha($data->captcha_register);
 			if(!$validationCaptcha)
 				return $this->respond([
 					'title'	=> 'Validación de usuario',
 					'msg'	=> 'Error al validar el Captcha'
 				], 500);
 			$c_model = new Company();
-			$company = $c_model->where(['nit' => $data->nit])->first();
+			$company = $c_model->where(['nit' => $data->register_nit])->first();
 			if(!empty($company))
 				return $this->respond([
 					'title' 	=> 'Empresa ya registrada',
-					'msg'		=> "Ya existe una empresa registrada con el NIT {$data->nit}"
+					'msg'		=> "Ya existe una empresa registrada con el NIT {$data->register_nit}"
 				], 500);
 			$u_model = new User();
-			$user = $u_model->where(['email' => $data->email])->first();
+			$user = $u_model->where(['email' => $data->register_email])->first();
 			if(!empty($user))
 				return $this->respond([
 					'title' 	=> 'Correo ya registrado',
-					'msg'		=> "Ya existe un usuario registrado con el email {$data->email}"
+					'msg'		=> "Ya existe un usuario registrado con el email {$data->register_email}"
 				], 500);
 			
 			$data_user = [
-				'name'		=> $data->name,
-				'email'		=> $data->email,
-				'username'	=> $data->email,
+				'name'		=> $data->register_name,
+				'email'		=> $data->register_email,
+				'username'	=> $data->register_email,
 				'role_id'	=> 3,
 				'status'	=> 'active'
 			];
@@ -98,16 +104,16 @@ class HomeController extends BaseController
 				$p_model = new Password();
 				$p_model->save([
 					'user_id'   => $user_id,
-					'password'  => password_hash($data->nit, PASSWORD_DEFAULT),
+					'password'  => password_hash($data->register_nit, PASSWORD_DEFAULT),
 					'temporary'	=> "Si"
 				]);
 
 				$c_model->save([
 					'user_id'	=> $user_id,
-					'name'		=> $data->name_company,
-					'nit'		=> $data->nit
+					'name'		=> $data->register_name_company,
+					'nit'		=> $data->register_nit
 				]);
-				session('filter')->nit->status = true;
+				
 				$user = new User();
 				$data = $user
 					->select(['users.*', 'roles.name as role_name'])
@@ -136,7 +142,7 @@ class HomeController extends BaseController
 	public function login(){
 		try {
 			$data = $this->request->getJson();
-			$validationCaptcha = ValidateReCaptcha($data->captcha);
+			$validationCaptcha = ValidateReCaptcha($data->captcha_login);
 			if(!$validationCaptcha)
 				return $this->respond([
 					'title'	=> 'Validación de usuario',
@@ -146,8 +152,8 @@ class HomeController extends BaseController
 			$user = $u_model
 				->select(['users.*', 'roles.name as role_name'])
 				->join('roles', 'roles.id = users.role_id')
-				->where('username', $data->email)
-				->orWhere('email', $data->email)->first();
+				->where('username', $data->login_email)
+				->orWhere('email', $data->login_email)->first();
 			if(empty($user))
 				return $this->respond([
 					'title'	=> 'Validación de usuario',
@@ -159,7 +165,7 @@ class HomeController extends BaseController
 					'msg'	=> 'El usuario no esta activo.'
 				], 500);
 			$user->password = $u_model->getPassword($user->id);
-			if (!password_verify($data->password, $user->password->password)) {
+			if (!password_verify($data->login_password, $user->password->password)) {
 				$p_model = new Password();
 				$p_model->save([
 					'id'        => $user->password->id,
@@ -261,7 +267,7 @@ class HomeController extends BaseController
 			$last_digit_nit = substr($company->nit, -1);
 			$tc_model = new TaxCalendar();
 			$taxes = [];
-			if(date('d') == '01' && $company->first_working_day){
+			if(date('d') == '07' && $company->first_working_day){
 				$taxes = $tc_model
 					->where(['last_digit_nit' => $last_digit_nit, 'YEAR(date)' => date('Y'), 'MONTH(date)' => date('m')])
 					->join('calendary_taxes', 'calendary_taxes.id = upload_tax_calendar.calendary_tax_id', 'left')
@@ -297,8 +303,10 @@ class HomeController extends BaseController
 				$emails_com = array_unique($emails_com);
 				$emails = implode(", ", $emails_com);
 
+				return $vista;
+
 				$email = new EmailController();
-				$response = $email->send('wabox324@gmail.com', 'wabox', $emails, 'Notificación pago de impuesots', $vista);
+				$response = $email->send('wabox324@gmail.com', 'wabox', $emails, 'Notificación pago de impuestos', $vista);
 				if(!$response->status){
 					log_message('error', 'Error al enviar notificación para la empresa ID: ' . $company->id . '. Mensaje: ' . $response->message);
 					return $this->respond([
@@ -318,13 +326,59 @@ class HomeController extends BaseController
 		$ct_t_model = new CategoryTax();
 		$category_taxes = $ct_t_model->findAll();
 		foreach ($category_taxes as $key => $category) {
-			$category->calendary = $ct_t_model->getCalendary($category->id);
-			$category->calendary = array_values(array_filter($category->calendary, function ($calendary) use ($ct_t_model) {
+			$category->calendaries = $ct_t_model->getCalendary($category->id);
+			$category->calendaries = array_values(array_filter($category->calendaries, function ($calendary) use ($ct_t_model) {
 				$datos = $ct_t_model->getCalendaryTax($calendary->id);
 				$calendary->taxes = $datos;
 				return !empty($calendary->taxes);
 			}));
+			foreach($category->calendaries as $calendary){
+				switch ($calendary->template) {
+					case '1':
+						$calendary->last_digit_nit = array_reduce($calendary->taxes, function ($result, $item) {
+							$key = $item->last_digit_nit;
+							$result[$key] = $key;
+							return $result;
+						}, []);
+	
+						$calendary->taxes = array_reduce($calendary->taxes, function ($result, $item) {
+							if($item->calendary_tax_id != 28){
+								$key = $item->detail_period;
+							}else{
+								$key = $item->detail_period." (".$item->ubication.")";
+							}
+							if (!isset($result[$key])) {
+								$result[$key] = (object)[
+									'title' => $key,
+									'year' => (int) date('Y', strtotime($item->date)),
+									'month' => (int) date('m', strtotime($item->date)) - 1,
+									'details' => []
+								];
+							}
+							$result[$key]->details[] = $item;
+							return $result;
+						}, []);
+						break;
+					
+					default:
+						$calendary->taxes = array_reduce($calendary->taxes, function ($result, $item) {
+							$key = $item->description;
+							if (!isset($result[$key])) {
+								$result[$key] = (object)[
+									'title' => $key,
+									'year' => (int) date('Y', strtotime($item->date)),
+									'month' => (int) date('m', strtotime($item->date)) - 1,
+									'details' => []
+								];
+							}
+							$result[$key]->details[] = $item;
+							return $result;
+						}, []);
+						break;
+				}
+			}
 		}
+
 		return $category_taxes;
 	}
 

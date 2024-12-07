@@ -327,8 +327,16 @@
                 data-bs-target="#canvasRegister"
                 aria-controls="canvasRegister"
                 class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
+                ><span class="tf-icons ri-user-add-line me-md-1"></span
+                ><span class="d-none d-md-block">Registrarme</span></a>
+              <a
+                href="javascript:void(0);"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#canvasLogin"
+                aria-controls="canvasLogin"
+                class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
                 ><span class="tf-icons ri-user-line me-md-1"></span
-                ><span class="d-none d-md-block"><?= session('filter')->nit->status ? 'Iniciar Sesion' : 'Registro' ?></span></a>
+                ><span class="d-none d-md-block">Iniciar Sesion</span></a>
             <?php else: ?>
               <a
                 href="javascript:void(0);"
@@ -338,6 +346,11 @@
                 class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
                 ><span class="tf-icons ri-list-settings-line me-md-1"></span
                 ><span class="d-none d-md-block">Notificaciones</span></a>
+                <a
+                href="<?= base_url(['logout']) ?>"
+                class="btn btn-primary px-2 px-sm-4 px-lg-2 px-xl-4"
+                ><span class="tf-icons ri-close-circle-line me-md-1"></span
+                ><span class="d-none d-md-block">Cerrar Sesión</span></a>
             <?php endif ?>
           </li>
           <!-- navbar button: End -->

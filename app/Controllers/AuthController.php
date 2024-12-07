@@ -229,7 +229,7 @@ class AuthController extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to(base_url(['login']));
+        return redirect()->to(base_url());
     }
 
     public function encript($length = 10)
