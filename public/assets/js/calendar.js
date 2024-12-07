@@ -13,7 +13,7 @@ $(() => {
     $("#company-id").val(user_calendar.company.id);
     $("#name-company").val(user_calendar.company.name);
     $("#email-notify").val(user_calendar.email);
-    const emails = user_calendar.company.emails.split(" ");
+    const emails = user_calendar.company.emails != null && user_calendar.company.emails != "" ? user_calendar.company.emails.split(" ") : [];
     $("#email-notify-2").val(emails[0]);
     $("#email-notify-3").val(emails.length == 2 ? emails[1] : "");
     $("#nit-notify").val(user_calendar.company.nit);

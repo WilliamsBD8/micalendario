@@ -42,9 +42,9 @@
     <!-- Footer -->
     <div class="footer">
       <p>
-        Este correo se ha enviado a <?= $user->email ?>. Si no solicitaste este registro, por favor <a href="mailto:info@iplanetcolombia.com">contáctanos
+        Este correo se ha enviado a <?= $user->email ?>. Si no solicitaste este registro, por favor <a href="micalendariotributario@micalendariotributario.com">contáctanos
       </p>
-      <p>&copy; Todos los derechos reservados - IPlanet Colombia SAS</p>
+      <p>&copy; Todos los derechos reservados - Mawii</p>
     </div>
   </div>
 </body>
