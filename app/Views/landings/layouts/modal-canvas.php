@@ -30,7 +30,7 @@
             id="login-password"
             name="login-password"
             placeholder="" />
-            <label for="login-password">Contraseña</label>
+            <label for="login-password">NIT</label>
         </div>
 
         <div class="form-floating form-floating-outline mb-5">

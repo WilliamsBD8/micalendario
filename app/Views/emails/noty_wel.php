@@ -62,7 +62,7 @@
     <!-- Footer -->
     <div class="footer">
       <p>
-        Si no has registrado tu cuenta, puedes darte de baja o desuscribirte <a style="color:#<?= $color_primary ?>; font-weight: 600;" href="<?= base_url(['desuscribe']) ?>">aquí</a>.
+        Si no has registrado tu cuenta, puedes darte de baja o desuscribirte <a style="color:#<?= $color_primary ?>; font-weight: 600;" href="<?= base_url(['desuscribe', $id]) ?>">aquí</a>.
       </p>
       <p>&copy; Todos los derechos reservados - Mawii</p>
     </div>

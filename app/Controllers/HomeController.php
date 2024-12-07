@@ -125,7 +125,8 @@ class HomeController extends BaseController
 				$session->set('user-calendar', $data);
 				$vista = view('emails/noty_wel', [
 					'type'	=> true,
-					'user'	=> (object) $data_user,
+					'user'	=> (object) $data,
+					'id'	=> $data->id
 				]);
 				$subject = 'Bienvenido a ';
 				$subject .= isset(configInfo()['name_app']) ? configInfo()['name_app'] : 'IPLANET';
@@ -317,7 +318,8 @@ class HomeController extends BaseController
 					'taxes'		=> $taxes,
 					'company'	=> $company,
 					'date'		=> $today,
-					'dias'		=> $dias
+					'dias'		=> $dias,
+					'id'		=> $company->user_id
 				]);
 
 				$emails_com = array_filter(array_map('trim', explode(" ", $company->emails)));
